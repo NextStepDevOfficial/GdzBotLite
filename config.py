@@ -1,1 +1,1 @@
-BOT_TOKEN="7898835387:AAGVZmOcClELX_9bipcFhoCPa_o8MEKfyD4"
+BOT_TOKEN="" #PS токен уже сменили, Стас сений
