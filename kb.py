@@ -6,7 +6,7 @@ def main_kb():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
 
     # Добавляем кнопки с текстом для выбора источника
-    buttons = ["gdz.ru", "Euroki", "MegaResheba"]
+    buttons = ["gdz.ru"]
     for button_text in buttons:
         button = types.KeyboardButton(text=button_text)  # Создаем кнопку
         keyboard.add(button)  # Добавляем кнопку на клавиатуру
