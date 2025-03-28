@@ -28,8 +28,7 @@ def message_reply(message):
     if message.text == "gdz.ru":
         bot.register_next_step_handler(message, select_subject_gdz)  # Переход к выбору предмета
         bot.send_message(message.chat.id, "Жду ввода названия предмета...")
-    elif message.text in ["Euroki", "MegaResheba"]:
-        bot.send_message(message.chat.id, "In dev...")  # Сообщение о том, что функция в разработке
+    
 
 # Функция для выбора предмета на gdz.ru
 def select_subject_gdz(message):
@@ -144,6 +143,58 @@ def select_page_gdz(call):
         message = call.message
         chat_id = message.chat.id
         bot.delete_message(chat_id, message.id)  # Удаляем сообщение в случае ошибки
+
+
+
+
+
+
+def select_book_euroki(message):
+    books = e.search_books(message.text)
+    chat_id = message.chat.id
+    keyboard = telebot.types.InlineKeyboardMarkup()  # Создаем клавиатуру
+    i = 0
+    for book in books:
+        a=""
+        for n in book.authors:
+            a=a+n+" "
+        button = telebot.types.InlineKeyboardButton(text=a,
+                                                        callback_data=f"e_book_{i}")  # Создаем кнопку
+        keyboard.add(button)
+        i += 1
+    
+    bot.send_message(message.chat.id, "Выберете автора(ов)", reply_markup=keyboard)  # Отправляем клавиатуру
+
+@bot.callback_query_handler(func=lambda call: "e_book_" in call.data)
+def select_page_gdz(call):
+    try:
+        book_id = int(str(call.data).replace("e_book_", ""))  # Извлекаем ID книги
+        message = call.message
+        chat_id = message.chat.id
+        bot.register_next_step_handler_by_chat_id(chat_id, select_page_euroki_message_handler)  # Переход к выбору страницы
+        bot.edit_message_text(f'Жду ввода номера/страницы...', chat_id, message.id)
+        users[chat_id] = f"{book_id}"  # Добавляем ID книги к ID предмета
+    except:
+        message = call.message
+        chat_id = message.chat.id
+        bot.delete_message(chat_id, message.id)  # Удаляем сообщение в случае ошибки
+
+# Функция для выбора страницы
+def select_page_euroki_message_handler(message):
+    chat_id = message.chat.id
+    keyboard = telebot.types.InlineKeyboardMarkup()  # Создаем клавиатуру
+    book_id = int(str(users[chat_id]).split("_")[0])  # Получаем ID книги
+    books = e.search_books("Биология 10 класс")
+    i = 0
+    for page in pages:
+        if message.text in str(page.number):  # Проверяем совпадение номера страницы
+            button = telebot.types.InlineKeyboardButton(text=str(page.number),
+                                                        callback_data=f"page_{i}")  # Создаем кнопку
+            keyboard.add(button)
+        i += 1
+    
+    bot.send_message(message.chat.id, "Результаты поиска", reply_markup=keyboard)  # Отправляем клавиатуру
+
 
 # Запуск бота
 bot.polling(none_stop=True)
